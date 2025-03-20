@@ -1,6 +1,5 @@
 package com.hiberus.hiring.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -13,65 +12,55 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hiberus.hiring.controller.dto.Offer;
 import com.hiberus.hiring.controller.dto.OfferByPartNumber;
+import com.hiberus.hiring.controller.dto.OfferDto;
+import com.hiberus.hiring.service.OfferService;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 
 /**
  * You can change this controller but please do not change ends points signatures & payloads.
  */
 @RestController
-@Slf4j
+@RequiredArgsConstructor
 public class OfferController {
+
+	private final OfferService offerService;
 
 	@PostMapping(value = "/offer", consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
-	public void createNewOffer(@RequestBody @Valid Offer offer) {
-
-		//TODO implement it!.
-
+	public void createNewOffer(@RequestBody @Valid OfferDto offer) {
+		offerService.createNewOffer(offer);
 	}
 
 	@DeleteMapping(value = "/offer")
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteAllOffers() {
-
-		//TODO implement it!.
-
+		offerService.deleteAllOffers();
 	}
 
 	@DeleteMapping(value = "/offer/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteOfferById(@PathVariable Long id) {
-
-		//TODO implement it!.
-
+		offerService.deleteOfferById(id);
 	}
 
 	@GetMapping(value = "/offer", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public List<Offer> getAllOffers() {
-
-		//TODO implement it!.
-		return new ArrayList<>();
-
+	public List<OfferDto> getAllOffers() {
+		return offerService.getAllOffers();
 	}
 
 	@GetMapping(value = "/offer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public Offer getOfferById(@PathVariable(value = "id") Long offerId) {
-
-		//TODO implement it!.
-		return new Offer();
+	public OfferDto getOfferById(@PathVariable(value = "id") Long offerId) {
+		return offerService.getOfferById(offerId);
 	}
 
 	@GetMapping(value = "brand/{brandId}/partnumber/{partnumber}/offer", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public List<OfferByPartNumber> getOfferByPartNumber(@PathVariable Integer brandId, @PathVariable String partnumber) {
-
-		//TODO implement it!.
-		return new ArrayList<>();
+	public List<OfferByPartNumber> getOfferByPartNumber(@PathVariable Integer brandId, @PathVariable("partnumber") String partNumber) {
+		return offerService.getOfferByPartNumber(brandId, partNumber);
 	}
 }

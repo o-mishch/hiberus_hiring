@@ -1,6 +1,5 @@
 package com.hiberus.hiring;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -77,7 +76,7 @@ public class HttpJsonDynamicUnitTest {
 	@Autowired
 	public void setConverters(HttpMessageConverter<?>[] converters) {
 		mappingJackson2HttpMessageConverter = Stream.of(converters)
-				.filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
+				.filter(MappingJackson2HttpMessageConverter.class::isInstance)
 				.findAny()
 				.orElse(null);
 
@@ -128,7 +127,7 @@ public class HttpJsonDynamicUnitTest {
 					.filter(Files::isRegularFile)
 					.map(f -> f.getFileName().toString())
 					.filter(f -> f.endsWith(".json"))
-					.collect(toList());
+					.toList();
 		}
 		catch (IOException ex) {
 			throw new Error(ex.toString());
@@ -141,12 +140,12 @@ public class HttpJsonDynamicUnitTest {
 			try (InputStream inputStream = resource.getInputStream()) {
 				testnames = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
 						.lines()
-						.collect(toList());
+						.toList();
 			}
 			catch (IOException ex) {
 				System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-						.map(trace -> trace.toString())
-						.collect(toList())));
+						.map(StackTraceElement::toString)
+						.toList()));
 
 				throw new Error(ex.toString());
 			}
@@ -154,10 +153,8 @@ public class HttpJsonDynamicUnitTest {
 			if (!testnames.isEmpty()) {
 				assertEquals(httpJsonFiles.size(), testnames.size());
 
-				for (int i = 0; i < testnames.size(); i++) {
-					String[] testname = testnames.get(i).split(": ");
-					httpJsonAndTestname.put(testname[0], testname[1]);
-				}
+				testnames.stream().map(s -> s.split(": "))
+						.forEach(testname -> httpJsonAndTestname.put(testname[0], testname[1]));
 
 				AtomicInteger processedRequestCount = new AtomicInteger(1);
 
@@ -166,19 +163,18 @@ public class HttpJsonDynamicUnitTest {
 						return;
 					}
 
-					final List<String> jsonStrings = new ArrayList<>();
+					final List<String> jsonStrings;
 
 					ClassPathResource jsonResource = new ClassPathResource("testcases/" + filename);
 					try (InputStream inputStream = jsonResource.getInputStream()) {
-						new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+						jsonStrings = new ArrayList<>(new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
 								.lines()
-								.collect(toList())
-								.forEach(jsonString -> jsonStrings.add(jsonString));
+								.toList());
 					}
 					catch (IOException ex) {
 						System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-								.map(trace -> trace.toString())
-								.collect(toList())));
+								.map(StackTraceElement::toString)
+								.toList()));
 
 						throw new Error(ex.toString());
 					}
@@ -236,8 +232,8 @@ public class HttpJsonDynamicUnitTest {
 											}
 											catch (Exception ex) {
 												System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-														.map(trace -> trace.toString())
-														.collect(toList())));
+														.map(StackTraceElement::toString)
+														.toList()));
 
 												throw new Error(ex.toString());
 											}
@@ -268,8 +264,8 @@ public class HttpJsonDynamicUnitTest {
 											}
 											catch (Exception ex) {
 												System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-														.map(trace -> trace.toString())
-														.collect(toList())));
+														.map(StackTraceElement::toString)
+														.toList()));
 
 												throw new Error(ex.toString());
 											}
@@ -288,8 +284,8 @@ public class HttpJsonDynamicUnitTest {
 										}
 										catch (Exception ex) {
 											System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-													.map(trace -> trace.toString())
-													.collect(toList())));
+													.map(StackTraceElement::toString)
+													.toList()));
 
 											throw new Error(ex.toString());
 										}
@@ -329,8 +325,8 @@ public class HttpJsonDynamicUnitTest {
 										}
 										catch (Exception ex) {
 											System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-													.map(trace -> trace.toString())
-													.collect(toList())));
+													.map(StackTraceElement::toString)
+													.toList()));
 
 											throw new Error(ex.toString());
 										}
@@ -342,8 +338,8 @@ public class HttpJsonDynamicUnitTest {
 							}
 							catch (IOException ex) {
 								System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-										.map(trace -> trace.toString())
-										.collect(toList())));
+										.map(StackTraceElement::toString)
+										.toList()));
 
 								throw new Error(ex.toString());
 							}
@@ -447,7 +443,7 @@ public class HttpJsonDynamicUnitTest {
 				.stream()
 				.sorted()
 				.map(filename -> executionTime.get(filename))
-				.collect(toList());
+				.toList();
 
 		for (int i = 1; i < executionTimeInSeconds.size(); i++) {
 			executionTime.put(httpJsonFiles.get(i),
@@ -509,8 +505,8 @@ public class HttpJsonDynamicUnitTest {
 					}
 					catch (IOException ex) {
 						System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-								.map(trace -> trace.toString())
-								.collect(toList())));
+								.map(StackTraceElement::toString)
+								.toList()));
 
 						throw new Error(ex.toString());
 					}
@@ -522,8 +518,8 @@ public class HttpJsonDynamicUnitTest {
 					}
 					catch (IOException ex) {
 						System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-								.map(trace -> trace.toString())
-								.collect(toList())));
+								.map(StackTraceElement::toString)
+								.toList()));
 
 						throw new Error(ex.toString());
 					}
@@ -567,8 +563,8 @@ public class HttpJsonDynamicUnitTest {
 							}
 							catch (IOException ex) {
 								System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-										.map(trace -> trace.toString())
-										.collect(toList())));
+										.map(StackTraceElement::toString)
+										.toList()));
 
 								throw new Error(ex.toString());
 							}
@@ -577,8 +573,8 @@ public class HttpJsonDynamicUnitTest {
 		}
 		catch (IOException ex) {
 			System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
-					.map(trace -> trace.toString())
-					.collect(toList())));
+					.map(StackTraceElement::toString)
+					.toList()));
 
 			throw new Error(ex.toString());
 		}
@@ -615,7 +611,7 @@ public class HttpJsonDynamicUnitTest {
 						catch (IOException ex) {
 							System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
 									.map(trace -> trace.toString())
-									.collect(toList())));
+									.toList()));
 
 							throw new Error(ex.toString());
 						}
@@ -626,7 +622,7 @@ public class HttpJsonDynamicUnitTest {
 		catch (IOException ex) {
 			System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
 					.map(trace -> trace.toString())
-					.collect(toList())));
+					.toList()));
 
 			throw new Error(ex.toString());
 		}
@@ -636,9 +632,9 @@ public class HttpJsonDynamicUnitTest {
 		final String DASHES = "------------------------------------------------------------------------";
 		final String ANSI_SUMMARY = DASHES + "\n" + Colors.BLUE_BOLD + "TEST SUMMARY\n" + Colors.RESET + DASHES;
 		final String ANSI_RESULT = DASHES + "\n" + Colors.BLUE_BOLD + "TEST RESULT\n" + Colors.RESET + DASHES;
-		final String ANSI_REPORT = DASHES + "\n" + Colors.BLUE_BOLD + "FAILURE REPORT %s\n" + Colors.RESET + DASHES;
+		//		final String ANSI_REPORT = DASHES + "\n" + Colors.BLUE_BOLD + "FAILURE REPORT %s\n" + Colors.RESET + DASHES;
 		final String ANSI_FAILURE = Colors.RED_BOLD + "Failure" + Colors.RESET;
-		final String ANSI_SUCCESS = Colors.GREEN_BOLD + "Success" + Colors.RESET;
+		//		final String ANSI_SUCCESS = Colors.GREEN_BOLD + "Success" + Colors.RESET;
 
 		File reportFolder = new File("target/customReports");
 		reportFolder.mkdir();
@@ -680,7 +676,7 @@ public class HttpJsonDynamicUnitTest {
 				catch (IOException ex) {
 					System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
 							.map(trace -> trace.toString())
-							.collect(toList())));
+							.toList()));
 
 					throw new Error(ex.toString());
 				}
@@ -689,7 +685,7 @@ public class HttpJsonDynamicUnitTest {
 		catch (IOException ex) {
 			System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
 					.map(trace -> trace.toString())
-					.collect(toList())));
+					.toList()));
 
 			throw new Error(ex.toString());
 		}
@@ -715,7 +711,7 @@ public class HttpJsonDynamicUnitTest {
 						catch (IOException ex) {
 							System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
 									.map(trace -> trace.toString())
-									.collect(toList())));
+									.toList()));
 
 							throw new Error(ex.toString());
 						}
@@ -726,7 +722,7 @@ public class HttpJsonDynamicUnitTest {
 		catch (IOException ex) {
 			System.out.println(String.join("\n", Stream.of(ex.getStackTrace())
 					.map(trace -> trace.toString())
-					.collect(toList())));
+					.toList()));
 
 			throw new Error(ex.toString());
 		}
